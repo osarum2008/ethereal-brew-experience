@@ -349,7 +349,7 @@ const MENU: { title: string; items: Item[] }[] = [
     title: "Signature Coffee",
     items: [
       { name: "Royal Spanish Latte", price: "550", desc: "Silky condensed milk kissed with double espresso — Coffee Shopfi's signature.", cal: "310 kcal", ingredients: ["Espresso", "Condensed milk", "Steamed milk", "Vanilla"], img: heartLatte.url, tag: "Best Seller" },
-      { name: "Flavor Burst Cappuccino", price: "550", desc: "A dense crema hero — pulled thick, dusted with cocoa.", cal: "180 kcal", ingredients: ["Double espresso", "Micro-foam", "Cocoa"], img: flatWhite, tag: "Chef's Pick" },
+      { name: "Flavor Burst Cappuccino", price: "550", desc: "A dense crema hero — pulled thick, dusted with cocoa.", cal: "180 kcal", ingredients: ["Double espresso", "Micro-foam", "Cocoa"], img: flatWhite.url, tag: "Chef's Pick" },
       { name: "Hot Chocolate Grand", price: "750", desc: "Melted Belgian chocolate, cream, and a whisper of sea salt.", cal: "420 kcal", ingredients: ["Belgian chocolate", "Whole milk", "Cream", "Sea salt"], img: kinderMocha.url },
     ],
   },
