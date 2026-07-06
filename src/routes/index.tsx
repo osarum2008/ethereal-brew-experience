@@ -105,10 +105,13 @@ function Nav() {
             </a>
           ))}
         </nav>
-        <a href="#reserve" className="group relative inline-flex items-center gap-2 overflow-hidden rounded-full border border-[color:var(--gold)]/50 px-5 py-2 text-xs uppercase tracking-[0.25em] text-cream transition hover:text-[#090909]">
-          <span className="absolute inset-0 -translate-x-full bg-[color:var(--gold)] transition-transform duration-500 group-hover:translate-x-0" />
-          <span className="relative">Reserve</span>
-        </a>
+        <div className="flex items-center gap-3">
+          <CartButton className="hidden sm:inline-flex" />
+          <a href="#reserve" className="group relative inline-flex items-center gap-2 overflow-hidden rounded-full border border-[color:var(--gold)]/50 px-5 py-2 text-xs uppercase tracking-[0.25em] text-cream transition hover:text-[#090909]">
+            <span className="absolute inset-0 -translate-x-full bg-[color:var(--gold)] transition-transform duration-500 group-hover:translate-x-0" />
+            <span className="relative">Reserve</span>
+          </a>
+        </div>
       </div>
     </motion.header>
   );
