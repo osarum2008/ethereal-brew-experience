@@ -463,7 +463,7 @@ const filteredItems = useMemo(() => {
 
 </div>
             className="mt-16 grid gap-8 md:grid-cols-3">
-            {MENU[tab].items.map((it, i) => (
+            {filteredItems.map((it, i) => (
               <MenuCard key={it.name} item={it} delay={i * 0.08} />
             ))}
           </motion.div>
