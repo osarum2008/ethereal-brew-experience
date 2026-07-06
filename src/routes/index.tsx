@@ -430,7 +430,9 @@ function MenuCard({ item, delay }: { item: Item; delay: number }) {
   const basePrice = parseInt(item.price.replace(/[^0-9]/g, "").slice(0, 3) || "0", 10);
   const total = basePrice * qty;
 
+  const { add } = useCart();
   const handleAdd = () => {
+    add({ id: item.name, name: item.name, price: basePrice || 0, img: item.img }, qty);
     setAdded(true);
     setTimeout(() => setAdded(false), 1400);
   };
