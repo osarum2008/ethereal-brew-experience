@@ -403,36 +403,6 @@ function Menu() {
           <motion.div key={tab}
             initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.6 }}
-<div className="mb-8 flex flex-wrap gap-4">
-
-  <input
-    type="text"
-    placeholder="Search coffee..."
-    value={search}
-    onChange={(e) => setSearch(e.target.value)}
-    className="rounded-xl border border-yellow-600 bg-black px-4 py-3 text-white w-72"
-  />
-
-  <select
-    value={priceFilter}
-    onChange={(e) => setPriceFilter(e.target.value)}
-    className="rounded-xl border border-yellow-600 bg-black px-4 py-3 text-white"
-  >
-    <option value="all">All Prices</option>
-    <option value="low">Below Rs 600</option>
-    <option value="high">Above Rs 600</option>
-  </select>
-
-  <label className="flex items-center gap-2 text-white">
-    <input
-      type="checkbox"
-      checked={bestSellerOnly}
-      onChange={(e) => setBestSellerOnly(e.target.checked)}
-    />
-    Best Seller
-  </label>
-
-</div>
             className="mt-16 grid gap-8 md:grid-cols-3">
             {filteredItems.map((it, i) => (
               <MenuCard key={it.name} item={it} delay={i * 0.08} />
