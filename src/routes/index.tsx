@@ -965,26 +965,31 @@ function MouseGlow() {
 
 function Landing() {
   return (
-    <main className="relative min-h-screen overflow-hidden bg-[#090909] text-cream">
-      <link rel="preconnect" href="https://fonts.googleapis.com" />
-      <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
-      <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
-      <Cursor />
-      <MouseGlow />
-      <ScrollProgress />
-      <Nav />
-      <Hero />
-      <Marquee />
-      <About />
-      <Menu />
-      <Signature />
-      <Journey />
-      <Gallery />
-      <Reviews />
-      <Reserve />
-      <MapSection />
-      <FAQ />
-      <Footer />
-    </main>
+    <CartProvider>
+      <main className="relative min-h-screen overflow-hidden bg-[#090909] text-cream">
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+        <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+        <Cursor />
+        <MouseGlow />
+        <ScrollProgress />
+        <Nav />
+        <Hero />
+        <Marquee />
+        <About />
+        <Menu />
+        <Signature />
+        <Journey />
+        <Gallery />
+        <Reviews />
+        <Reserve />
+        <MapSection />
+        <FAQ />
+        <Footer />
+        <div className="fixed bottom-5 right-5 z-40 sm:hidden">
+          <CartButton />
+        </div>
+      </main>
+    </CartProvider>
   );
 }
