@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { motion, useScroll, useTransform, useMotionValue, useSpring, AnimatePresence } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { Cursor } from "@/components/site/Cursor";
+import { CartProvider, CartButton, useCart } from "@/components/site/Cart";
 
 import heroCup from "@/assets/hero-cup.jpg";
 import ambience from "@/assets/ambience.jpg";
@@ -104,10 +105,13 @@ function Nav() {
             </a>
           ))}
         </nav>
-        <a href="#reserve" className="group relative inline-flex items-center gap-2 overflow-hidden rounded-full border border-[color:var(--gold)]/50 px-5 py-2 text-xs uppercase tracking-[0.25em] text-cream transition hover:text-[#090909]">
-          <span className="absolute inset-0 -translate-x-full bg-[color:var(--gold)] transition-transform duration-500 group-hover:translate-x-0" />
-          <span className="relative">Reserve</span>
-        </a>
+        <div className="flex items-center gap-3">
+          <CartButton className="hidden sm:inline-flex" />
+          <a href="#reserve" className="group relative inline-flex items-center gap-2 overflow-hidden rounded-full border border-[color:var(--gold)]/50 px-5 py-2 text-xs uppercase tracking-[0.25em] text-cream transition hover:text-[#090909]">
+            <span className="absolute inset-0 -translate-x-full bg-[color:var(--gold)] transition-transform duration-500 group-hover:translate-x-0" />
+            <span className="relative">Reserve</span>
+          </a>
+        </div>
       </div>
     </motion.header>
   );
@@ -426,7 +430,9 @@ function MenuCard({ item, delay }: { item: Item; delay: number }) {
   const basePrice = parseInt(item.price.replace(/[^0-9]/g, "").slice(0, 3) || "0", 10);
   const total = basePrice * qty;
 
+  const { add } = useCart();
   const handleAdd = () => {
+    add({ id: item.name, name: item.name, price: basePrice || 0, img: item.img }, qty);
     setAdded(true);
     setTimeout(() => setAdded(false), 1400);
   };
@@ -961,26 +967,31 @@ function MouseGlow() {
 
 function Landing() {
   return (
-    <main className="relative min-h-screen overflow-hidden bg-[#090909] text-cream">
-      <link rel="preconnect" href="https://fonts.googleapis.com" />
-      <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
-      <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
-      <Cursor />
-      <MouseGlow />
-      <ScrollProgress />
-      <Nav />
-      <Hero />
-      <Marquee />
-      <About />
-      <Menu />
-      <Signature />
-      <Journey />
-      <Gallery />
-      <Reviews />
-      <Reserve />
-      <MapSection />
-      <FAQ />
-      <Footer />
-    </main>
+    <CartProvider>
+      <main className="relative min-h-screen overflow-hidden bg-[#090909] text-cream">
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+        <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+        <Cursor />
+        <MouseGlow />
+        <ScrollProgress />
+        <Nav />
+        <Hero />
+        <Marquee />
+        <About />
+        <Menu />
+        <Signature />
+        <Journey />
+        <Gallery />
+        <Reviews />
+        <Reserve />
+        <MapSection />
+        <FAQ />
+        <Footer />
+        <div className="fixed bottom-5 right-5 z-40 sm:hidden">
+          <CartButton />
+        </div>
+      </main>
+    </CartProvider>
   );
 }
