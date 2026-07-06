@@ -376,35 +376,6 @@ const MENU: { title: string; items: Item[] }[] = [
 ];
 
 function Menu() {
-const [search, setSearch] = useState("");
-const [priceFilter, setPriceFilter] = useState("all");
-const [bestSellerOnly, setBestSellerOnly] = useState(false);
-
-const filteredItems = useMemo(() => {
-  let items = MENU[tab].items;
-
-  items = items.filter((item) =>
-    item.name.toLowerCase().includes(search.toLowerCase())
-  );
-
-  if (bestSellerOnly) {
-    items = items.filter((item) => item.tag === "Best Seller");
-  }
-
-  if (priceFilter === "low") {
-    items = items.filter(
-      (item) => parseInt(item.price) <= 600
-    );
-  }
-
-  if (priceFilter === "high") {
-    items = items.filter(
-      (item) => parseInt(item.price) > 600
-    );
-  }
-
-  return items;
-}, [search, priceFilter, bestSellerOnly, tab]);
   const [tab, setTab] = useState(0);
   return (
     <section id="menu" className="relative py-32">
