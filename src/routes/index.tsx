@@ -413,9 +413,23 @@ function Menu() {
 function MenuCard({ item, delay }: { item: Item; delay: number }) {
   const ref = useRef<HTMLDivElement>(null);
   const mx = useMotionValue(0); const my = useMotionValue(0);
-  const rx = useSpring(useTransform(my, [-0.5, 0.5], [10, -10]), { stiffness: 150, damping: 15 });
-  const ry = useSpring(useTransform(mx, [-0.5, 0.5], [-10, 10]), { stiffness: 150, damping: 15 });
+  const rx = useSpring(useTransform(my, [-0.5, 0.5], [6, -6]), { stiffness: 150, damping: 15 });
+  const ry = useSpring(useTransform(mx, [-0.5, 0.5], [-6, 6]), { stiffness: 150, damping: 15 });
   const [fav, setFav] = useState(false);
+  const [qty, setQty] = useState(1);
+  const [added, setAdded] = useState(false);
+
+  // stable pseudo-rating from name (4.5 – 5.0)
+  const seed = item.name.split("").reduce((a, c) => a + c.charCodeAt(0), 0);
+  const rating = 4.5 + ((seed % 6) / 10);
+  const reviews = 40 + (seed % 260);
+  const basePrice = parseInt(item.price.replace(/[^0-9]/g, "").slice(0, 3) || "0", 10);
+  const total = basePrice * qty;
+
+  const handleAdd = () => {
+    setAdded(true);
+    setTimeout(() => setAdded(false), 1400);
+  };
 
   return (
     <motion.div
@@ -423,58 +437,118 @@ function MenuCard({ item, delay }: { item: Item; delay: number }) {
       viewport={{ once: true, margin: "-60px" }}
       transition={{ duration: 0.9, delay, ease: [0.22, 1, 0.36, 1] }}
     >
-      <motion.div ref={ref} style={{ rotateX: rx, rotateY: ry, transformPerspective: 1200 }}
+      <motion.div
+        ref={ref}
+        style={{ rotateX: rx, rotateY: ry, transformPerspective: 1200 }}
         onMouseMove={(e) => {
           const r = ref.current!.getBoundingClientRect();
           mx.set((e.clientX - r.left) / r.width - 0.5);
           my.set((e.clientY - r.top) / r.height - 0.5);
         }}
         onMouseLeave={() => { mx.set(0); my.set(0); }}
-        className="group relative overflow-hidden rounded-3xl border border-[color:var(--gold)]/15 bg-gradient-to-b from-white/[0.04] to-transparent p-4 transition"
+        whileHover={{ y: -6 }}
+        transition={{ type: "spring", stiffness: 200, damping: 20 }}
+        className="group relative flex h-full flex-col overflow-hidden rounded-[28px] border border-[color:var(--gold)]/15 bg-gradient-to-b from-white/[0.05] via-white/[0.02] to-transparent p-3 shadow-[0_20px_60px_-30px_rgba(0,0,0,0.9)] transition-shadow duration-500 hover:border-[color:var(--gold)]/40 hover:shadow-[0_40px_80px_-30px_rgba(212,175,55,0.35),0_0_0_1px_rgba(212,175,55,0.15)_inset]"
       >
-        <div className="relative aspect-[4/5] overflow-hidden rounded-2xl">
-          <motion.img src={item.img} alt={item.name}
-            className="h-full w-full object-cover"
-            style={{ scale: 1 }}
-            whileHover={{ scale: 1.08 }}
-            transition={{ duration: 1.2 }}
-            loading="lazy" />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+        {/* Image */}
+        <div className="relative aspect-[4/5] w-full overflow-hidden rounded-[22px]">
+          <img
+            src={item.img}
+            alt={item.name}
+            loading="lazy"
+            className="h-full w-full object-cover transition-transform duration-[1400ms] ease-out group-hover:scale-[1.12]"
+          />
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
+          <div className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100" style={{ background: "radial-gradient(60% 40% at 50% 100%, rgba(212,175,55,0.25), transparent 70%)" }} />
+
           {item.tag && (
-            <span className="absolute left-3 top-3 rounded-full glass-strong px-3 py-1 text-[10px] uppercase tracking-[0.25em] text-[color:var(--gold)]">
+            <span className="absolute left-4 top-4 rounded-full glass-strong px-3 py-1 text-[10px] uppercase tracking-[0.25em] text-[color:var(--gold)]">
               {item.tag}
             </span>
           )}
-          <button onClick={() => setFav(!fav)}
-            className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full glass-strong text-cream transition hover:scale-110">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill={fav ? "var(--gold)" : "none"} stroke="currentColor" strokeWidth="1.5">
+
+          <button
+            onClick={() => setFav(!fav)}
+            aria-label="Add to wishlist"
+            className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center rounded-full glass-strong text-cream transition hover:scale-110 active:scale-95"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill={fav ? "var(--gold)" : "none"} stroke={fav ? "var(--gold)" : "currentColor"} strokeWidth="1.6">
               <path d="M12 21s-7-4.35-7-10a4 4 0 0 1 7-2.65A4 4 0 0 1 19 11c0 5.65-7 10-7 10z" />
             </svg>
           </button>
-          {/* hover ingredients */}
-          <div className="absolute inset-x-3 bottom-3 translate-y-4 opacity-0 transition-all duration-500 group-hover:translate-y-0 group-hover:opacity-100">
+
+          {/* ingredients on hover */}
+          <div className="absolute inset-x-4 bottom-4 translate-y-3 opacity-0 transition-all duration-500 group-hover:translate-y-0 group-hover:opacity-100">
             <div className="flex flex-wrap gap-1">
-              {item.ingredients.map((g) => (
-                <span key={g} className="rounded-full glass px-2 py-1 text-[10px] text-cream/80">{g}</span>
+              {item.ingredients.slice(0, 4).map((g) => (
+                <span key={g} className="rounded-full glass px-2 py-1 text-[10px] text-cream/85">{g}</span>
               ))}
             </div>
           </div>
         </div>
-        <div className="px-2 pb-2 pt-5">
-          <div className="flex items-start justify-between gap-4">
-            <h3 className="font-display text-2xl text-cream">{item.name}</h3>
+
+        {/* Body */}
+        <div className="flex flex-1 flex-col px-3 pb-3 pt-5">
+          {/* Rating */}
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-0.5">
+              {[0, 1, 2, 3, 4].map((i) => {
+                const fill = Math.max(0, Math.min(1, rating - i));
+                return (
+                  <div key={i} className="relative h-3.5 w-3.5">
+                    <svg viewBox="0 0 24 24" className="absolute inset-0 h-full w-full" fill="none" stroke="currentColor" strokeWidth="1.5" style={{ color: "rgba(212,175,55,0.3)" }}>
+                      <path d="M12 2.5l2.9 6.3 6.6.7-4.9 4.6 1.4 6.6L12 17.4 6 20.7l1.4-6.6L2.5 9.5l6.6-.7L12 2.5z" />
+                    </svg>
+                    <div className="absolute inset-0 overflow-hidden" style={{ width: `${fill * 100}%` }}>
+                      <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="var(--gold)">
+                        <path d="M12 2.5l2.9 6.3 6.6.7-4.9 4.6 1.4 6.6L12 17.4 6 20.7l1.4-6.6L2.5 9.5l6.6-.7L12 2.5z" />
+                      </svg>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            <span className="text-[11px] text-cream/70">{rating.toFixed(1)}</span>
+            <span className="text-[10px] text-cream/40">({reviews})</span>
+          </div>
+
+          {/* Title + price */}
+          <div className="mt-3 flex items-start justify-between gap-4">
+            <h3 className="font-display text-2xl leading-tight text-cream">{item.name}</h3>
             <div className="text-right">
               <div className="font-display text-xl text-gold-gradient">Rs {item.price}</div>
               <div className="text-[10px] uppercase tracking-widest text-cream/40">{item.cal}</div>
             </div>
           </div>
-          <p className="mt-2 text-sm text-cream/60">{item.desc}</p>
-          <div className="mt-5 flex items-center justify-between">
-            <button className="group/btn text-[11px] uppercase tracking-[0.3em] text-cream/70 hover:text-[color:var(--gold)]">
-              Quick View <span className="inline-block transition group-hover/btn:translate-x-1">→</span>
-            </button>
-            <button className="relative overflow-hidden rounded-full bg-[color:var(--gold)]/90 px-4 py-2 text-[11px] uppercase tracking-[0.3em] text-[#090909] transition hover:bg-[color:var(--gold)]">
-              Add +
+
+          <p className="mt-2 line-clamp-2 text-sm text-cream/60">{item.desc}</p>
+
+          {/* Qty + Add to cart */}
+          <div className="mt-auto flex items-center gap-3 pt-6">
+            <div className="flex items-center gap-1 rounded-full border border-[color:var(--gold)]/25 bg-black/30 p-1">
+              <button
+                onClick={() => setQty((q) => Math.max(1, q - 1))}
+                aria-label="Decrease quantity"
+                className="flex h-8 w-8 items-center justify-center rounded-full text-cream/80 transition hover:bg-[color:var(--gold)]/15 hover:text-[color:var(--gold)] active:scale-90"
+              >−</button>
+              <span className="w-6 text-center text-sm tabular-nums text-cream">{qty}</span>
+              <button
+                onClick={() => setQty((q) => Math.min(99, q + 1))}
+                aria-label="Increase quantity"
+                className="flex h-8 w-8 items-center justify-center rounded-full text-cream/80 transition hover:bg-[color:var(--gold)]/15 hover:text-[color:var(--gold)] active:scale-90"
+              >+</button>
+            </div>
+            <button
+              onClick={handleAdd}
+              className="group/btn relative flex flex-1 items-center justify-center gap-2 overflow-hidden rounded-full bg-[color:var(--gold)] px-4 py-2.5 text-[11px] font-medium uppercase tracking-[0.28em] text-[#090909] shadow-[0_10px_30px_-10px_rgba(212,175,55,0.7)] transition hover:brightness-110 active:scale-[0.98]"
+            >
+              <span className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/40 to-transparent transition-transform duration-700 group-hover/btn:translate-x-full" />
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+                <path d="M3 4h2l2.4 12.1a2 2 0 0 0 2 1.6h7.2a2 2 0 0 0 2-1.5L21 8H6" />
+                <circle cx="10" cy="20" r="1.4" />
+                <circle cx="17" cy="20" r="1.4" />
+              </svg>
+              <span>{added ? "Added" : basePrice ? `Add · Rs ${total}` : "Add to Cart"}</span>
             </button>
           </div>
         </div>
