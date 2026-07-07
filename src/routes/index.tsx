@@ -418,12 +418,22 @@ function Menu() {
 
 function MenuCard({ item, delay }: { item: Item; delay: number }) {
   const ref = useRef<HTMLDivElement>(null);
+  const reduce = useReducedMotion();
   const mx = useMotionValue(0); const my = useMotionValue(0);
-  const rx = useSpring(useTransform(my, [-0.5, 0.5], [6, -6]), { stiffness: 150, damping: 15 });
-  const ry = useSpring(useTransform(mx, [-0.5, 0.5], [-6, 6]), { stiffness: 150, damping: 15 });
+  const rx = useSpring(useTransform(my, [-0.5, 0.5], [reduce ? 0 : 8, reduce ? 0 : -8]), { stiffness: 180, damping: 18, mass: 0.4 });
+  const ry = useSpring(useTransform(mx, [-0.5, 0.5], [reduce ? 0 : -8, reduce ? 0 : 8]), { stiffness: 180, damping: 18, mass: 0.4 });
+  // magnetic lift toward cursor
+  const tx = useSpring(useTransform(mx, [-0.5, 0.5], [reduce ? 0 : -6, reduce ? 0 : 6]), { stiffness: 200, damping: 20 });
+  const ty = useSpring(useTransform(my, [-0.5, 0.5], [reduce ? 0 : -6, reduce ? 0 : 6]), { stiffness: 200, damping: 20 });
+  // local glow position
+  const gx = useMotionValue(50); const gy = useMotionValue(50);
+  const glow = useMotionTemplate`radial-gradient(280px circle at ${gx}% ${gy}%, rgba(212,175,55,0.22), transparent 60%)`;
+  const borderMask = useMotionTemplate`conic-gradient(from ${useTransform(mx, [-0.5, 0.5], [0, 360])}deg at ${gx}% ${gy}%, rgba(212,175,55,0.55), rgba(212,175,55,0) 40%, rgba(212,175,55,0.55) 80%)`;
+
   const [fav, setFav] = useState(false);
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
+  const [ripples, setRipples] = useState<{ id: number; x: number; y: number }[]>([]);
 
   // stable pseudo-rating from name (4.5 – 5.0)
   const seed = item.name.split("").reduce((a, c) => a + c.charCodeAt(0), 0);
@@ -433,7 +443,11 @@ function MenuCard({ item, delay }: { item: Item; delay: number }) {
   const total = basePrice * qty;
 
   const { add } = useCart();
-  const handleAdd = () => {
+  const handleAdd = (e: React.MouseEvent<HTMLButtonElement>) => {
+    const r = e.currentTarget.getBoundingClientRect();
+    const id = Date.now();
+    setRipples((prev) => [...prev, { id, x: e.clientX - r.left, y: e.clientY - r.top }]);
+    setTimeout(() => setRipples((prev) => prev.filter((p) => p.id !== id)), 700);
     add({ id: item.name, name: item.name, price: basePrice || 0, img: item.img }, qty);
     setAdded(true);
     setTimeout(() => setAdded(false), 1400);
@@ -441,7 +455,7 @@ function MenuCard({ item, delay }: { item: Item; delay: number }) {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }}
+      initial={{ opacity: 0, y: 40, filter: "blur(10px)" }} whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
       viewport={{ once: true, margin: "-60px" }}
       transition={{ duration: 0.9, delay, ease: [0.22, 1, 0.36, 1] }}
     >
