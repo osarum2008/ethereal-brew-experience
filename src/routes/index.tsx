@@ -485,7 +485,7 @@ function MenuCard({ item, delay }: { item: Item; delay: number }) {
             WebkitMaskComposite: "xor",
             maskComposite: "exclude",
             padding: 1,
-          } as React.CSSProperties}
+          } as unknown as React.CSSProperties}
         />
         {/* cursor-following soft glow */}
         <motion.div aria-hidden className="pointer-events-none absolute inset-0 rounded-[28px] opacity-0 transition-opacity duration-500 group-hover:opacity-100" style={{ background: glow }} />
