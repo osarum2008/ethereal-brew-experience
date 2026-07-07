@@ -12,4 +12,21 @@ export default defineConfig({
     // nitro/vite builds from this
     server: { entry: "server" },
   },
+  vite: {
+    server: {
+      // Replit does not support IPv6 — override the :: host forced by the Lovable config.
+      // Port 8081 maps to external port 80 (root) per the Replit port routing table.
+      host: "0.0.0.0",
+      port: 8081,
+      strictPort: true,
+      allowedHosts: true,
+      watch: {
+        // Exclude Bun's install cache from file watching to avoid EMFILE errors
+        ignored: ["**/.cache/**"],
+      },
+    },
+    optimizeDeps: {
+      entries: ["src/**/*.{ts,tsx}"],
+    },
+  },
 });
