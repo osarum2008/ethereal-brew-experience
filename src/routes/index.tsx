@@ -756,12 +756,45 @@ function Reviews() {
     { n: "Hassan T.", r: "Their Praline Frappe should be illegal. I'm here every weekend now.", a: "HT" },
   ];
   const [i, setI] = useState(0);
+  const [dir, setDir] = useState(1);
+  const [paused, setPaused] = useState(false);
+  const regionRef = useRef<HTMLDivElement>(null);
+
+  const go = useCallback((n: number) => {
+    setDir(n > i || (i === reviews.length - 1 && n === 0) ? 1 : -1);
+    setI((n + reviews.length) % reviews.length);
+  }, [i, reviews.length]);
+  const next = useCallback(() => go((i + 1) % reviews.length), [go, i, reviews.length]);
+  const prev = useCallback(() => go((i - 1 + reviews.length) % reviews.length), [go, i, reviews.length]);
+
   useEffect(() => {
-    const t = setInterval(() => setI((v) => (v + 1) % reviews.length), 5000);
+    if (paused) return;
+    const t = setInterval(() => { setDir(1); setI((v) => (v + 1) % reviews.length); }, 5000);
     return () => clearInterval(t);
-  }, [reviews.length]);
+  }, [reviews.length, paused]);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (!regionRef.current) return;
+      const r = regionRef.current.getBoundingClientRect();
+      const inView = r.top < window.innerHeight * 0.75 && r.bottom > window.innerHeight * 0.25;
+      if (!inView) return;
+      if (e.key === "ArrowRight") next();
+      if (e.key === "ArrowLeft") prev();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [next, prev]);
+
+  const variants = {
+    enter: (d: number) => ({ opacity: 0, x: d * 60, filter: "blur(10px)" }),
+    center: { opacity: 1, x: 0, filter: "blur(0px)" },
+    exit: (d: number) => ({ opacity: 0, x: d * -60, filter: "blur(10px)" }),
+  };
+
   return (
-    <section className="relative py-32">
+    <section className="relative py-32" ref={regionRef}
+      onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
       <div className="mx-auto max-w-5xl px-6 text-center md:px-10">
         <Reveal>
           <SectionLabel><span className="mx-auto">Guest Book</span></SectionLabel>
@@ -769,14 +802,19 @@ function Reviews() {
             Loved by <span className="italic text-gold-gradient">Karachi's</span> finest palates.
           </h2>
         </Reveal>
-        <div className="relative mt-16 min-h-[220px]">
-          <AnimatePresence mode="wait">
+        <div className="relative mt-16 min-h-[260px]" aria-roledescription="carousel" aria-label="Guest reviews">
+          <AnimatePresence mode="wait" custom={dir}>
             <motion.blockquote key={i}
-              initial={{ opacity: 0, y: 20, filter: "blur(10px)" }}
-              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-              exit={{ opacity: 0, y: -20, filter: "blur(10px)" }}
-              transition={{ duration: 0.8 }}
-              className="glass-strong mx-auto max-w-3xl rounded-3xl p-10">
+              custom={dir}
+              variants={variants}
+              initial="enter" animate="center" exit="exit"
+              transition={{ type: "spring", stiffness: 260, damping: 30 }}
+              drag="x" dragConstraints={{ left: 0, right: 0 }} dragElastic={0.15}
+              onDragEnd={(_, info) => {
+                if (info.offset.x < -60 || info.velocity.x < -400) next();
+                else if (info.offset.x > 60 || info.velocity.x > 400) prev();
+              }}
+              className="glass-strong mx-auto max-w-3xl cursor-grab rounded-3xl p-10 active:cursor-grabbing">
               <div className="mb-4 flex justify-center gap-1 text-[color:var(--gold)]">
                 {"★★★★★".split("").map((s, k) => <span key={k}>{s}</span>)}
               </div>
@@ -787,10 +825,20 @@ function Reviews() {
               </div>
             </motion.blockquote>
           </AnimatePresence>
+
+          {/* arrows */}
+          <button onClick={prev} aria-label="Previous review"
+            className="absolute left-0 top-1/2 hidden h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full glass-strong text-cream transition hover:scale-110 hover:text-[color:var(--gold)] md:flex">
+            ←
+          </button>
+          <button onClick={next} aria-label="Next review"
+            className="absolute right-0 top-1/2 hidden h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full glass-strong text-cream transition hover:scale-110 hover:text-[color:var(--gold)] md:flex">
+            →
+          </button>
         </div>
         <div className="mt-8 flex justify-center gap-2">
           {reviews.map((_, k) => (
-            <button key={k} onClick={() => setI(k)}
+            <button key={k} onClick={() => go(k)} aria-label={`Go to review ${k + 1}`}
               className={`h-1 rounded-full transition-all ${k === i ? "w-10 bg-[color:var(--gold)]" : "w-4 bg-cream/20"}`} />
           ))}
         </div>
