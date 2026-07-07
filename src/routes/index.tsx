@@ -461,17 +461,34 @@ function MenuCard({ item, delay }: { item: Item; delay: number }) {
     >
       <motion.div
         ref={ref}
-        style={{ rotateX: rx, rotateY: ry, transformPerspective: 1200 }}
+        style={{ rotateX: rx, rotateY: ry, x: tx, y: ty, transformPerspective: 1200 }}
         onMouseMove={(e) => {
           const r = ref.current!.getBoundingClientRect();
-          mx.set((e.clientX - r.left) / r.width - 0.5);
-          my.set((e.clientY - r.top) / r.height - 0.5);
+          const px = (e.clientX - r.left) / r.width;
+          const py = (e.clientY - r.top) / r.height;
+          mx.set(px - 0.5);
+          my.set(py - 0.5);
+          gx.set(px * 100);
+          gy.set(py * 100);
         }}
-        onMouseLeave={() => { mx.set(0); my.set(0); }}
-        whileHover={{ y: -6 }}
+        onMouseLeave={() => { mx.set(0); my.set(0); gx.set(50); gy.set(50); }}
         transition={{ type: "spring", stiffness: 200, damping: 20 }}
-        className="group relative flex h-full flex-col overflow-hidden rounded-[28px] border border-[color:var(--gold)]/15 bg-gradient-to-b from-white/[0.05] via-white/[0.02] to-transparent p-3 shadow-[0_20px_60px_-30px_rgba(0,0,0,0.9)] transition-shadow duration-500 hover:border-[color:var(--gold)]/40 hover:shadow-[0_40px_80px_-30px_rgba(212,175,55,0.35),0_0_0_1px_rgba(212,175,55,0.15)_inset]"
+        className="group relative flex h-full flex-col overflow-hidden rounded-[28px] border border-[color:var(--gold)]/15 bg-gradient-to-b from-white/[0.05] via-white/[0.02] to-transparent p-3 shadow-[0_20px_60px_-30px_rgba(0,0,0,0.9)] transition-shadow duration-500 hover:border-[color:var(--gold)]/40 hover:shadow-[0_40px_80px_-30px_rgba(212,175,55,0.35),0_0_0_1px_rgba(212,175,55,0.15)_inset] will-change-transform"
       >
+        {/* animated conic border */}
+        <motion.div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 rounded-[28px] opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+          style={{
+            background: borderMask,
+            WebkitMask: "linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)",
+            WebkitMaskComposite: "xor",
+            maskComposite: "exclude",
+            padding: 1,
+          } as React.CSSProperties}
+        />
+        {/* cursor-following soft glow */}
+        <motion.div aria-hidden className="pointer-events-none absolute inset-0 rounded-[28px] opacity-0 transition-opacity duration-500 group-hover:opacity-100" style={{ background: glow }} />
         {/* Image */}
         <div className="relative aspect-[4/5] w-full overflow-hidden rounded-[22px]">
           <img
