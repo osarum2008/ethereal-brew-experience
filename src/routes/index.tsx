@@ -404,7 +404,7 @@ function Menu() {
             initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.6 }}
             className="mt-16 grid gap-8 md:grid-cols-3">
-            {filteredItems.map((it, i) => (
+            {MENU[tab].items.map((it, i) => (
               <MenuCard key={it.name} item={it} delay={i * 0.08} />
             ))}
           </motion.div>
