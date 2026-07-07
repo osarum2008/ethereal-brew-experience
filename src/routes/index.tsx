@@ -50,6 +50,8 @@ function useMouseGlow() {
 }
 
 function Reveal({ children, delay = 0, y = 40 }: { children: React.ReactNode; delay?: number; y?: number }) {
+  const reduce = useReducedMotion();
+  if (reduce) return <div>{children}</div>;
   return (
     <motion.div
       initial={{ opacity: 0, y, filter: "blur(12px)" }}
