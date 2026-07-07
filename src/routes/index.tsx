@@ -582,12 +582,28 @@ function MenuCard({ item, delay }: { item: Item; delay: number }) {
               className="group/btn relative flex flex-1 items-center justify-center gap-2 overflow-hidden rounded-full bg-[color:var(--gold)] px-4 py-2.5 text-[11px] font-medium uppercase tracking-[0.28em] text-[#090909] shadow-[0_10px_30px_-10px_rgba(212,175,55,0.7)] transition hover:brightness-110 active:scale-[0.98]"
             >
               <span className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/40 to-transparent transition-transform duration-700 group-hover/btn:translate-x-full" />
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+              {/* ripples */}
+              <span className="pointer-events-none absolute inset-0 overflow-hidden rounded-full">
+                <AnimatePresence>
+                  {ripples.map((r) => (
+                    <motion.span
+                      key={r.id}
+                      initial={{ opacity: 0.5, scale: 0 }}
+                      animate={{ opacity: 0, scale: 6 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.7, ease: "easeOut" }}
+                      style={{ left: r.x - 40, top: r.y - 40 }}
+                      className="absolute h-20 w-20 rounded-full bg-white/40"
+                    />
+                  ))}
+                </AnimatePresence>
+              </span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="relative">
                 <path d="M3 4h2l2.4 12.1a2 2 0 0 0 2 1.6h7.2a2 2 0 0 0 2-1.5L21 8H6" />
                 <circle cx="10" cy="20" r="1.4" />
                 <circle cx="17" cy="20" r="1.4" />
               </svg>
-              <span>{added ? "Added" : basePrice ? `Add · Rs ${total}` : "Add to Cart"}</span>
+              <span className="relative">{added ? "Added" : basePrice ? `Add · Rs ${total}` : "Add to Cart"}</span>
             </button>
           </div>
         </div>
