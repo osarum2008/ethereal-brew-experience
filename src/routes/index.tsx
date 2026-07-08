@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { motion, useScroll, useTransform, useMotionValue, useSpring, AnimatePresence, useReducedMotion, useMotionTemplate } from "framer-motion";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { motion, useScroll, useTransform, useMotionValue, useSpring, AnimatePresence } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
 import { Cursor } from "@/components/site/Cursor";
 import { CartProvider, CartButton, useCart } from "@/components/site/Cart";
 
@@ -50,8 +50,6 @@ function useMouseGlow() {
 }
 
 function Reveal({ children, delay = 0, y = 40 }: { children: React.ReactNode; delay?: number; y?: number }) {
-  const reduce = useReducedMotion();
-  if (reduce) return <div>{children}</div>;
   return (
     <motion.div
       initial={{ opacity: 0, y, filter: "blur(12px)" }}
@@ -418,22 +416,12 @@ function Menu() {
 
 function MenuCard({ item, delay }: { item: Item; delay: number }) {
   const ref = useRef<HTMLDivElement>(null);
-  const reduce = useReducedMotion();
   const mx = useMotionValue(0); const my = useMotionValue(0);
-  const rx = useSpring(useTransform(my, [-0.5, 0.5], [reduce ? 0 : 8, reduce ? 0 : -8]), { stiffness: 180, damping: 18, mass: 0.4 });
-  const ry = useSpring(useTransform(mx, [-0.5, 0.5], [reduce ? 0 : -8, reduce ? 0 : 8]), { stiffness: 180, damping: 18, mass: 0.4 });
-  // magnetic lift toward cursor
-  const tx = useSpring(useTransform(mx, [-0.5, 0.5], [reduce ? 0 : -6, reduce ? 0 : 6]), { stiffness: 200, damping: 20 });
-  const ty = useSpring(useTransform(my, [-0.5, 0.5], [reduce ? 0 : -6, reduce ? 0 : 6]), { stiffness: 200, damping: 20 });
-  // local glow position
-  const gx = useMotionValue(50); const gy = useMotionValue(50);
-  const glow = useMotionTemplate`radial-gradient(280px circle at ${gx}% ${gy}%, rgba(212,175,55,0.22), transparent 60%)`;
-  const borderMask = useMotionTemplate`conic-gradient(from ${useTransform(mx, [-0.5, 0.5], [0, 360])}deg at ${gx}% ${gy}%, rgba(212,175,55,0.55), rgba(212,175,55,0) 40%, rgba(212,175,55,0.55) 80%)`;
-
+  const rx = useSpring(useTransform(my, [-0.5, 0.5], [6, -6]), { stiffness: 150, damping: 15 });
+  const ry = useSpring(useTransform(mx, [-0.5, 0.5], [-6, 6]), { stiffness: 150, damping: 15 });
   const [fav, setFav] = useState(false);
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
-  const [ripples, setRipples] = useState<{ id: number; x: number; y: number }[]>([]);
 
   // stable pseudo-rating from name (4.5 – 5.0)
   const seed = item.name.split("").reduce((a, c) => a + c.charCodeAt(0), 0);
@@ -443,11 +431,7 @@ function MenuCard({ item, delay }: { item: Item; delay: number }) {
   const total = basePrice * qty;
 
   const { add } = useCart();
-  const handleAdd = (e: React.MouseEvent<HTMLButtonElement>) => {
-    const r = e.currentTarget.getBoundingClientRect();
-    const id = Date.now();
-    setRipples((prev) => [...prev, { id, x: e.clientX - r.left, y: e.clientY - r.top }]);
-    setTimeout(() => setRipples((prev) => prev.filter((p) => p.id !== id)), 700);
+  const handleAdd = () => {
     add({ id: item.name, name: item.name, price: basePrice || 0, img: item.img }, qty);
     setAdded(true);
     setTimeout(() => setAdded(false), 1400);
@@ -455,40 +439,23 @@ function MenuCard({ item, delay }: { item: Item; delay: number }) {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 40, filter: "blur(10px)" }} whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+      initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-60px" }}
       transition={{ duration: 0.9, delay, ease: [0.22, 1, 0.36, 1] }}
     >
       <motion.div
         ref={ref}
-        style={{ rotateX: rx, rotateY: ry, x: tx, y: ty, transformPerspective: 1200 }}
+        style={{ rotateX: rx, rotateY: ry, transformPerspective: 1200 }}
         onMouseMove={(e) => {
           const r = ref.current!.getBoundingClientRect();
-          const px = (e.clientX - r.left) / r.width;
-          const py = (e.clientY - r.top) / r.height;
-          mx.set(px - 0.5);
-          my.set(py - 0.5);
-          gx.set(px * 100);
-          gy.set(py * 100);
+          mx.set((e.clientX - r.left) / r.width - 0.5);
+          my.set((e.clientY - r.top) / r.height - 0.5);
         }}
-        onMouseLeave={() => { mx.set(0); my.set(0); gx.set(50); gy.set(50); }}
+        onMouseLeave={() => { mx.set(0); my.set(0); }}
+        whileHover={{ y: -6 }}
         transition={{ type: "spring", stiffness: 200, damping: 20 }}
-        className="group relative flex h-full flex-col overflow-hidden rounded-[28px] border border-[color:var(--gold)]/15 bg-gradient-to-b from-white/[0.05] via-white/[0.02] to-transparent p-3 shadow-[0_20px_60px_-30px_rgba(0,0,0,0.9)] transition-shadow duration-500 hover:border-[color:var(--gold)]/40 hover:shadow-[0_40px_80px_-30px_rgba(212,175,55,0.35),0_0_0_1px_rgba(212,175,55,0.15)_inset] will-change-transform"
+        className="group relative flex h-full flex-col overflow-hidden rounded-[28px] border border-[color:var(--gold)]/15 bg-gradient-to-b from-white/[0.05] via-white/[0.02] to-transparent p-3 shadow-[0_20px_60px_-30px_rgba(0,0,0,0.9)] transition-shadow duration-500 hover:border-[color:var(--gold)]/40 hover:shadow-[0_40px_80px_-30px_rgba(212,175,55,0.35),0_0_0_1px_rgba(212,175,55,0.15)_inset]"
       >
-        {/* animated conic border */}
-        <motion.div
-          aria-hidden
-          className="pointer-events-none absolute inset-0 rounded-[28px] opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-          style={{
-            background: borderMask,
-            WebkitMask: "linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0)",
-            WebkitMaskComposite: "xor",
-            maskComposite: "exclude",
-            padding: 1,
-          } as unknown as React.CSSProperties}
-        />
-        {/* cursor-following soft glow */}
-        <motion.div aria-hidden className="pointer-events-none absolute inset-0 rounded-[28px] opacity-0 transition-opacity duration-500 group-hover:opacity-100" style={{ background: glow }} />
         {/* Image */}
         <div className="relative aspect-[4/5] w-full overflow-hidden rounded-[22px]">
           <img
@@ -582,28 +549,12 @@ function MenuCard({ item, delay }: { item: Item; delay: number }) {
               className="group/btn relative flex flex-1 items-center justify-center gap-2 overflow-hidden rounded-full bg-[color:var(--gold)] px-4 py-2.5 text-[11px] font-medium uppercase tracking-[0.28em] text-[#090909] shadow-[0_10px_30px_-10px_rgba(212,175,55,0.7)] transition hover:brightness-110 active:scale-[0.98]"
             >
               <span className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/40 to-transparent transition-transform duration-700 group-hover/btn:translate-x-full" />
-              {/* ripples */}
-              <span className="pointer-events-none absolute inset-0 overflow-hidden rounded-full">
-                <AnimatePresence>
-                  {ripples.map((r) => (
-                    <motion.span
-                      key={r.id}
-                      initial={{ opacity: 0.5, scale: 0 }}
-                      animate={{ opacity: 0, scale: 6 }}
-                      exit={{ opacity: 0 }}
-                      transition={{ duration: 0.7, ease: "easeOut" }}
-                      style={{ left: r.x - 40, top: r.y - 40 }}
-                      className="absolute h-20 w-20 rounded-full bg-white/40"
-                    />
-                  ))}
-                </AnimatePresence>
-              </span>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="relative">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
                 <path d="M3 4h2l2.4 12.1a2 2 0 0 0 2 1.6h7.2a2 2 0 0 0 2-1.5L21 8H6" />
                 <circle cx="10" cy="20" r="1.4" />
                 <circle cx="17" cy="20" r="1.4" />
               </svg>
-              <span className="relative">{added ? "Added" : basePrice ? `Add · Rs ${total}` : "Add to Cart"}</span>
+              <span>{added ? "Added" : basePrice ? `Add · Rs ${total}` : "Add to Cart"}</span>
             </button>
           </div>
         </div>
@@ -756,45 +707,12 @@ function Reviews() {
     { n: "Hassan T.", r: "Their Praline Frappe should be illegal. I'm here every weekend now.", a: "HT" },
   ];
   const [i, setI] = useState(0);
-  const [dir, setDir] = useState(1);
-  const [paused, setPaused] = useState(false);
-  const regionRef = useRef<HTMLDivElement>(null);
-
-  const go = useCallback((n: number) => {
-    setDir(n > i || (i === reviews.length - 1 && n === 0) ? 1 : -1);
-    setI((n + reviews.length) % reviews.length);
-  }, [i, reviews.length]);
-  const next = useCallback(() => go((i + 1) % reviews.length), [go, i, reviews.length]);
-  const prev = useCallback(() => go((i - 1 + reviews.length) % reviews.length), [go, i, reviews.length]);
-
   useEffect(() => {
-    if (paused) return;
-    const t = setInterval(() => { setDir(1); setI((v) => (v + 1) % reviews.length); }, 5000);
+    const t = setInterval(() => setI((v) => (v + 1) % reviews.length), 5000);
     return () => clearInterval(t);
-  }, [reviews.length, paused]);
-
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (!regionRef.current) return;
-      const r = regionRef.current.getBoundingClientRect();
-      const inView = r.top < window.innerHeight * 0.75 && r.bottom > window.innerHeight * 0.25;
-      if (!inView) return;
-      if (e.key === "ArrowRight") next();
-      if (e.key === "ArrowLeft") prev();
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [next, prev]);
-
-  const variants = {
-    enter: (d: number) => ({ opacity: 0, x: d * 60, filter: "blur(10px)" }),
-    center: { opacity: 1, x: 0, filter: "blur(0px)" },
-    exit: (d: number) => ({ opacity: 0, x: d * -60, filter: "blur(10px)" }),
-  };
-
+  }, [reviews.length]);
   return (
-    <section className="relative py-32" ref={regionRef}
-      onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
+    <section className="relative py-32">
       <div className="mx-auto max-w-5xl px-6 text-center md:px-10">
         <Reveal>
           <SectionLabel><span className="mx-auto">Guest Book</span></SectionLabel>
@@ -802,19 +720,14 @@ function Reviews() {
             Loved by <span className="italic text-gold-gradient">Karachi's</span> finest palates.
           </h2>
         </Reveal>
-        <div className="relative mt-16 min-h-[260px]" aria-roledescription="carousel" aria-label="Guest reviews">
-          <AnimatePresence mode="wait" custom={dir}>
+        <div className="relative mt-16 min-h-[220px]">
+          <AnimatePresence mode="wait">
             <motion.blockquote key={i}
-              custom={dir}
-              variants={variants}
-              initial="enter" animate="center" exit="exit"
-              transition={{ type: "spring", stiffness: 260, damping: 30 }}
-              drag="x" dragConstraints={{ left: 0, right: 0 }} dragElastic={0.15}
-              onDragEnd={(_, info) => {
-                if (info.offset.x < -60 || info.velocity.x < -400) next();
-                else if (info.offset.x > 60 || info.velocity.x > 400) prev();
-              }}
-              className="glass-strong mx-auto max-w-3xl cursor-grab rounded-3xl p-10 active:cursor-grabbing">
+              initial={{ opacity: 0, y: 20, filter: "blur(10px)" }}
+              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+              exit={{ opacity: 0, y: -20, filter: "blur(10px)" }}
+              transition={{ duration: 0.8 }}
+              className="glass-strong mx-auto max-w-3xl rounded-3xl p-10">
               <div className="mb-4 flex justify-center gap-1 text-[color:var(--gold)]">
                 {"★★★★★".split("").map((s, k) => <span key={k}>{s}</span>)}
               </div>
@@ -825,20 +738,10 @@ function Reviews() {
               </div>
             </motion.blockquote>
           </AnimatePresence>
-
-          {/* arrows */}
-          <button onClick={prev} aria-label="Previous review"
-            className="absolute left-0 top-1/2 hidden h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full glass-strong text-cream transition hover:scale-110 hover:text-[color:var(--gold)] md:flex">
-            ←
-          </button>
-          <button onClick={next} aria-label="Next review"
-            className="absolute right-0 top-1/2 hidden h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full glass-strong text-cream transition hover:scale-110 hover:text-[color:var(--gold)] md:flex">
-            →
-          </button>
         </div>
         <div className="mt-8 flex justify-center gap-2">
           {reviews.map((_, k) => (
-            <button key={k} onClick={() => go(k)} aria-label={`Go to review ${k + 1}`}
+            <button key={k} onClick={() => setI(k)}
               className={`h-1 rounded-full transition-all ${k === i ? "w-10 bg-[color:var(--gold)]" : "w-4 bg-cream/20"}`} />
           ))}
         </div>
