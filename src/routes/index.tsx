@@ -120,118 +120,200 @@ function Nav() {
 
 /* ---------------- Hero ---------------- */
 
+const HERO_BADGES = [
+  { icon: Flame, label: "Freshly Brewed", sub: "Every 20 min" },
+  { icon: Leaf, label: "100% Arabica", sub: "Single origin" },
+  { icon: Coffee, label: "Premium Beans", sub: "Roast daily" },
+  { icon: Truck, label: "Fast Delivery", sub: "Under 30 min" },
+];
+
+function FeatureBadge({ icon: Icon, label, sub, delay = 0 }: { icon: typeof Flame; label: string; sub: string; delay?: number }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+      whileHover={{ y: -4, scale: 1.03 }}
+      className="glass gold-border group flex items-center gap-3 rounded-2xl px-4 py-3"
+    >
+      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[color:var(--gold)]/10 text-[color:var(--gold)] transition-colors group-hover:bg-[color:var(--gold)]/20">
+        <Icon size={16} strokeWidth={1.6} />
+      </span>
+      <div className="min-w-0">
+        <div className="text-[12px] font-medium text-cream">{label}</div>
+        <div className="text-[10px] uppercase tracking-[0.2em] text-cream/50">{sub}</div>
+      </div>
+    </motion.div>
+  );
+}
+
 function Hero() {
   const ref = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
-  const y = useTransform(scrollYProgress, [0, 1], [0, 200]);
-  const scale = useTransform(scrollYProgress, [0, 1], [1, 1.15]);
-  const opacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
+  const y = useTransform(scrollYProgress, [0, 1], [0, 180]);
+  const yImg = useTransform(scrollYProgress, [0, 1], [0, -120]);
+  const scale = useTransform(scrollYProgress, [0, 1], [1, 1.1]);
+  const opacity = useTransform(scrollYProgress, [0, 0.85], [1, 0]);
 
   const mx = useMotionValue(0);
   const my = useMotionValue(0);
-  const rx = useSpring(useTransform(my, [-0.5, 0.5], [8, -8]), { stiffness: 80, damping: 15 });
-  const ry = useSpring(useTransform(mx, [-0.5, 0.5], [-12, 12]), { stiffness: 80, damping: 15 });
+  const rx = useSpring(useTransform(my, [-0.5, 0.5], [6, -6]), { stiffness: 80, damping: 15 });
+  const ry = useSpring(useTransform(mx, [-0.5, 0.5], [-10, 10]), { stiffness: 80, damping: 15 });
 
   return (
-    <section id="top" ref={ref} className="relative min-h-[100svh] overflow-hidden"
+    <section
+      id="top"
+      ref={ref}
+      className="relative min-h-[100svh] overflow-hidden"
       onMouseMove={(e) => {
         const r = e.currentTarget.getBoundingClientRect();
         mx.set((e.clientX - r.left) / r.width - 0.5);
         my.set((e.clientY - r.top) / r.height - 0.5);
-      }}>
+      }}
+    >
       {/* Background ambience */}
       <motion.div style={{ scale, y }} className="absolute inset-0">
-        <img src={ambience} alt="" className="h-full w-full object-cover opacity-40" />
-        <div className="absolute inset-0 bg-gradient-to-b from-[#090909]/60 via-[#090909]/70 to-[#090909]" />
+        <img src={ambience} alt="" className="h-full w-full object-cover opacity-25" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#090909]/70 via-[#090909]/80 to-[#090909]" />
       </motion.div>
 
-      {/* Moving lights */}
+      {/* Ambient light blobs */}
       <div className="pointer-events-none absolute inset-0">
-        <div className="absolute -left-40 top-1/3 h-[500px] w-[500px] rounded-full bg-[color:var(--gold)]/10 blur-[120px]" />
-        <div className="absolute right-0 top-0 h-[400px] w-[400px] rounded-full bg-[color:var(--coffee)]/40 blur-[140px]" />
-        <div className="absolute bottom-0 left-1/3 h-[380px] w-[380px] rounded-full bg-[color:var(--chocolate)]/40 blur-[120px]" />
+        <div className="absolute -left-40 top-1/3 h-[520px] w-[520px] rounded-full bg-[color:var(--gold)]/10 blur-[130px]" />
+        <div className="absolute right-[-10%] top-[-10%] h-[520px] w-[520px] rounded-full bg-[color:var(--coffee)]/40 blur-[150px]" />
+        <div className="absolute bottom-[-10%] left-1/3 h-[420px] w-[420px] rounded-full bg-[color:var(--chocolate)]/40 blur-[130px]" />
       </div>
 
-      <motion.div style={{ opacity }} className="relative z-10 mx-auto flex min-h-[100svh] max-w-7xl flex-col justify-center px-6 pt-32 md:px-10">
-        <div className="grid gap-10 md:grid-cols-[1.1fr_1fr] md:items-center">
-          <div>
+      {/* Oversized ghost wordmark behind */}
+      <div className="pointer-events-none absolute inset-x-0 top-[38%] flex justify-center overflow-hidden md:top-[30%]">
+        <div className="font-display select-none text-[28vw] leading-none tracking-tighter text-[color:var(--gold)]/[0.035] md:text-[22vw]">
+          SHOPFI
+        </div>
+      </div>
+
+      <motion.div
+        style={{ opacity }}
+        className="relative z-10 mx-auto flex min-h-[100svh] max-w-7xl flex-col justify-center px-6 pt-32 pb-20 md:px-10"
+      >
+        <div className="grid gap-14 md:grid-cols-[1.15fr_1fr] md:items-center md:gap-8">
+          {/* LEFT — copy */}
+          <div className="relative">
             <Reveal>
-              <div className="mb-8 flex items-center gap-3 text-[11px] uppercase tracking-[0.4em] text-[color:var(--gold)]">
-                <span className="inline-block h-1.5 w-1.5 rounded-full bg-[color:var(--gold)] shadow-[0_0_20px_var(--gold)]" />
-                Est. Karachi · Boost Your Mind
+              <div className="mb-6 inline-flex items-center gap-3 rounded-full glass gold-border px-4 py-1.5 text-[10px] uppercase tracking-[0.4em] text-[color:var(--gold)]">
+                <span className="inline-block h-1.5 w-1.5 rounded-full bg-[color:var(--gold)] shadow-[0_0_18px_var(--gold)]" />
+                Karachi's Coffee Atelier
+                <Sparkles size={11} strokeWidth={1.5} />
               </div>
             </Reveal>
-            <Reveal delay={0.1}>
-              <h1 className="font-display text-[13vw] leading-[0.9] tracking-tight text-cream md:text-[6.5rem]">
-                Experience <br />
-                <span className="italic text-gold-gradient">Coffee</span> Beyond
-                <br /> Imagination
+
+            <Reveal delay={0.08}>
+              <h1 className="font-display text-[16vw] leading-[0.85] tracking-tight text-cream md:text-[9rem]">
+                <span className="block">Sip The</span>
+                <span className="block italic text-gold-gradient">Extraordinary</span>
               </h1>
             </Reveal>
-            <Reveal delay={0.25}>
-              <p className="mt-8 max-w-xl text-base leading-relaxed text-cream/70 md:text-lg">
-                Every cup tells a story — crafted with passion, premium beans, and unforgettable flavors. A cinematic coffee sanctuary on Service Road, Karachi.
+
+            <Reveal delay={0.22}>
+              <p className="mt-8 max-w-lg text-base leading-relaxed text-cream/70 md:text-[17px]">
+                Hand-pulled espresso, velvet-textured milks and cold-crafted classics — served in a cinematic
+                sanctuary on Service Road, Karachi. Every pour, an unrepeatable moment.
               </p>
             </Reveal>
-            <Reveal delay={0.4}>
-              <div className="mt-10 flex flex-wrap items-center gap-4">
-                <MagneticButton primary href="#menu">Explore Menu</MagneticButton>
+
+            <Reveal delay={0.35}>
+              <div className="mt-9 flex flex-wrap items-center gap-4">
+                <MagneticButton primary href="#menu">Order Now</MagneticButton>
                 <MagneticButton href="#reserve">Reserve Table</MagneticButton>
               </div>
             </Reveal>
-            <Reveal delay={0.55}>
-              <div className="mt-14 grid max-w-md grid-cols-3 divide-x divide-[color:var(--gold)]/20">
-                {[
-                  ["12+", "Signature Drinks"],
-                  ["4.9", "Guest Rating"],
-                  ["24/7", "Aroma"],
-                ].map(([n, l]) => (
-                  <div key={l} className="px-4 first:pl-0">
-                    <div className="font-display text-3xl text-gold-gradient">{n}</div>
-                    <div className="mt-1 text-[10px] uppercase tracking-[0.3em] text-cream/50">{l}</div>
-                  </div>
-                ))}
-              </div>
-            </Reveal>
-          </div>
 
-          {/* Rotating cup */}
-          <motion.div style={{ rotateX: rx, rotateY: ry, transformPerspective: 1200 }} className="relative mx-auto aspect-square w-full max-w-[520px]">
-            <div className="absolute inset-0 animate-spin-slow rounded-full border border-dashed border-[color:var(--gold)]/25" />
-            <div className="absolute inset-8 rounded-full border border-[color:var(--gold)]/10" />
-            <div className="absolute inset-0 rounded-full bg-[color:var(--gold)]/10 blur-3xl" />
-            {/* steam */}
-            <div className="pointer-events-none absolute left-1/2 top-1/4 h-40 w-40 -translate-x-1/2">
-              {[0, 1, 2, 3].map((i) => (
-                <span key={i}
-                  className="absolute left-1/2 top-0 h-24 w-24 rounded-full bg-white/10 blur-2xl"
-                  style={{ animation: `steam 5s ${i * 1.2}s ease-out infinite` }} />
+            {/* Feature badges */}
+            <div className="mt-12 grid max-w-xl grid-cols-2 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              {HERO_BADGES.map((b, i) => (
+                <FeatureBadge key={b.label} {...b} delay={0.55 + i * 0.09} />
               ))}
             </div>
-            <motion.img
-              src={heroCup}
-              alt="Signature Coffee Shopfi cup with rising steam"
-              className="relative z-10 h-full w-full rounded-full object-cover shadow-[0_60px_120px_-30px_rgba(212,175,55,0.35)]"
-              animate={{ rotate: [0, 360] }}
-              transition={{ duration: 60, ease: "linear", repeat: Infinity }}
-              width={1536} height={1536}
-            />
+          </div>
+
+          {/* RIGHT — hero visual */}
+          <motion.div
+            style={{ rotateX: rx, rotateY: ry, transformPerspective: 1200, y: yImg }}
+            className="relative mx-auto aspect-[3/4] w-full max-w-[460px]"
+          >
+            {/* warm glow */}
+            <div className="absolute inset-0 -z-10">
+              <div className="absolute left-1/2 top-1/2 h-[90%] w-[90%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[color:var(--gold)]/25 blur-[90px]" />
+              <div className="absolute left-1/2 top-[60%] h-[60%] w-[70%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[color:var(--coffee)]/50 blur-[70px]" />
+            </div>
+
+            {/* dashed rotating ring */}
+            <div className="absolute inset-[-8%] animate-spin-slow rounded-[2.5rem] border border-dashed border-[color:var(--gold)]/20" />
+
+            {/* image card */}
+            <div className="relative h-full w-full overflow-hidden rounded-[2rem] gold-border magnetic-glow">
+              <img
+                src={icedLatte.url}
+                alt="Signature iced latte at Coffee Shopfi"
+                className="h-full w-full object-cover"
+                width={1200}
+                height={1600}
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#090909]/70 via-transparent to-transparent" />
+
+              {/* floating tag */}
+              <motion.div
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.9, duration: 0.7 }}
+                className="glass-strong absolute left-4 top-4 flex items-center gap-2 rounded-full px-3 py-1.5 text-[10px] uppercase tracking-[0.3em] text-cream/85"
+              >
+                <span className="h-1.5 w-1.5 rounded-full bg-[color:var(--gold)] shadow-[0_0_12px_var(--gold)]" />
+                Signature
+              </motion.div>
+
+              {/* floating price/name chip */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 1.1, duration: 0.7 }}
+                className="glass-strong absolute bottom-4 left-4 right-4 flex items-center justify-between rounded-2xl px-4 py-3"
+              >
+                <div>
+                  <div className="text-[11px] uppercase tracking-[0.3em] text-cream/50">House Signature</div>
+                  <div className="font-display text-lg text-cream">Iced Silk Latte</div>
+                </div>
+                <a
+                  href="#menu"
+                  className="flex h-10 w-10 items-center justify-center rounded-full bg-[color:var(--gold)] text-[#090909] transition-transform hover:scale-110"
+                  aria-label="Explore menu"
+                >
+                  <ArrowRight size={16} strokeWidth={2} />
+                </a>
+              </motion.div>
+            </div>
+
             {/* floating beans */}
             {[
-              { t: "5%", l: "10%", d: 0 },
-              { t: "70%", l: "-5%", d: 1.2 },
-              { t: "20%", l: "95%", d: 2 },
-              { t: "80%", l: "80%", d: 0.6 },
+              { t: "4%", l: "-6%", d: 0 },
+              { t: "72%", l: "-8%", d: 1.2 },
+              { t: "12%", l: "98%", d: 2 },
+              { t: "84%", l: "94%", d: 0.6 },
             ].map((b, i) => (
-              <span key={i}
+              <span
+                key={i}
                 className="absolute h-4 w-6 rounded-full bg-gradient-to-br from-[#5c2e1f] to-[#2a120a] shadow-[0_10px_30px_rgba(0,0,0,0.6)] animate-float-slow"
-                style={{ top: b.t, left: b.l, animationDelay: `${b.d}s` }} />
+                style={{ top: b.t, left: b.l, animationDelay: `${b.d}s` }}
+              />
             ))}
           </motion.div>
         </div>
 
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.5 }}
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 text-[10px] uppercase tracking-[0.5em] text-cream/40">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.5 }}
+          className="pointer-events-none absolute bottom-6 left-1/2 -translate-x-1/2 text-[10px] uppercase tracking-[0.5em] text-cream/40"
+        >
           <div className="flex flex-col items-center gap-2">
             <span>Scroll</span>
             <span className="h-10 w-px animate-pulse bg-gradient-to-b from-[color:var(--gold)] to-transparent" />
@@ -241,6 +323,7 @@ function Hero() {
     </section>
   );
 }
+
 
 function MagneticButton({ children, href, primary }: { children: React.ReactNode; href: string; primary?: boolean }) {
   const ref = useRef<HTMLAnchorElement>(null);
