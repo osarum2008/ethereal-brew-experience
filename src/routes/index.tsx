@@ -3,6 +3,7 @@ import { motion, useScroll, useTransform, useMotionValue, useSpring, AnimatePres
 import { useEffect, useRef, useState } from "react";
 import { Cursor } from "@/components/site/Cursor";
 import { CartProvider, CartButton, useCart } from "@/components/site/Cart";
+import { Flame, Leaf, Truck, Coffee, ArrowRight, Sparkles } from "lucide-react";
 
 import heroCup from "@/assets/hero-cup.jpg";
 import ambience from "@/assets/ambience.jpg";
