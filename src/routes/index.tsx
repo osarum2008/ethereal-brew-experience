@@ -363,6 +363,9 @@ const MENU: { title: string; items: Item[] }[] = [
       { name: "Iced Silk Latte", price: "500 / 650", desc: "Cold-pressed espresso layered over silk-textured oat milk.", cal: "210 kcal", ingredients: ["Cold brew", "Oat milk", "Ice"], img: icedLatte.url },
       { name: "Praline Signature Frappe", price: "800 / 990", desc: "Blended espresso, hazelnut praline, whipped cloud and caramel drizzle.", cal: "480 kcal", ingredients: ["Espresso", "Praline", "Milk", "Caramel", "Whip"], img: walnutFrappe.url, tag: "New" },
       { name: "Strawberry Pink Pearl Boba", price: "300 / 450 / 600", desc: "Fresh strawberry pearls suspended in a rose-hued milk cloud.", cal: "260 kcal", ingredients: ["Strawberry", "Milk", "Popping boba", "Ice"], img: strawberryBoba.url },
+      { name: "Golden Mango Frappe", price: "750 / 900", desc: "Blended mango, oats and cream crowned with fresh mango cubes and toasted granola.", cal: "410 kcal", ingredients: ["Mango", "Oats", "Cream", "Granola", "Ice"], img: iceCream.url, tag: "Seasonal" },
+      { name: "Double Chocolate Iced Mocha", price: "650 / 800", desc: "Espresso and cold milk laced with chocolate, finished with cream and a generous drizzle.", cal: "440 kcal", ingredients: ["Espresso", "Cold milk", "Chocolate", "Cream", "Ice"], img: kinderMocha.url },
+      { name: "Pistachio Rose Frappe", price: "800 / 950", desc: "Whipped pistachio cream over blended espresso, dusted with crushed pistachio.", cal: "460 kcal", ingredients: ["Pistachio", "Espresso", "Milk", "Rose", "Whip"], img: roseLatte.url },
     ],
   },
   {
@@ -371,6 +374,10 @@ const MENU: { title: string; items: Item[] }[] = [
       { name: "Zen Green Matcha", price: "600 / 750", desc: "Ceremonial-grade matcha whisked with steamed milk.", cal: "180 kcal", ingredients: ["Matcha", "Milk", "Cane sugar"], img: gal3, tag: "Signature" },
       { name: "Lotus Creamy Matcha", price: "750 / 950", desc: "Matcha, biscoff crumble and vanilla cream in one immersive sip.", cal: "340 kcal", ingredients: ["Matcha", "Lotus biscoff", "Cream", "Milk"], img: taroBoba.url },
       { name: "Peach Iced Tea", price: "400 / 550", desc: "White peach infusion over crystal ice with a citrus twist.", cal: "120 kcal", ingredients: ["Black tea", "Peach", "Lemon", "Ice"], img: gal4 },
+      { name: "Brown Sugar Matcha", price: "700 / 850", desc: "Ceremonial matcha poured over a brown sugar cascade, layered with silky milk.", cal: "260 kcal", ingredients: ["Matcha", "Brown sugar", "Milk"], img: heartLatte.url },
+      { name: "Blue Lagoon Cooler", price: "450 / 600", desc: "A frosted citrus refresher swirled with butterfly pea and fresh lemon.", cal: "140 kcal", ingredients: ["Butterfly pea", "Lemon", "Citrus", "Ice"], img: icedLatte.url },
+      { name: "Peach Mint Frost", price: "450 / 600", desc: "Crushed peach and lime blended to a frosty finish, brightened with fresh mint.", cal: "150 kcal", ingredients: ["Peach", "Lime", "Mint", "Ice"], img: strawberryBoba.url },
+      { name: "Passion Fruit Mojito Cooler", price: "500 / 650", desc: "Muddled passion fruit and lime over crushed ice with a whisper of fresh mint.", cal: "160 kcal", ingredients: ["Passion fruit", "Lime", "Mint", "Ice"], img: flatWhite.url },
     ],
   },
 ];
